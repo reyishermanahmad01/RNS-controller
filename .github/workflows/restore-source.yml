@@ -32,7 +32,7 @@ jobs:
             exit 1
           fi
 
-          rsync -a --exclude='.git' /tmp/rns-source/ ./
+          rsync -a --exclude='.git' --exclude='.github' /tmp/rns-source/ ./
 
       - name: Commit restored source
         run: |
