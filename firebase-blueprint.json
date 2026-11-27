@@ -1,0 +1,114 @@
+{
+  "entities": {
+    "AppRelease": {
+      "title": "AppRelease",
+      "description": "Konfigurasi rilis jarak jauh (OTA) berisi nama aplikasi, tema, tata letak, dan daftar mode animasi tambahan yang diterbitkan Admin untuk semua Customer.",
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "number",
+          "description": "Nomor versi rilis yang bertambah secara berurutan."
+        },
+        "versionLabel": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Label versi aplikasi (misalnya v1.1)."
+        },
+        "releaseNotes": {
+          "type": "string",
+          "maxLength": 5000,
+          "description": "Catatan pembaruan untuk pengguna."
+        },
+        "appName": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Nama merek aplikasi yang tampil di header."
+        },
+        "accentTheme": {
+          "type": "string",
+          "enum": ["cyan", "magenta", "crimson", "amber", "emerald"],
+          "description": "Tema warna aksen aplikasi."
+        },
+        "sectionOrder": {
+          "type": "array",
+          "description": "Urutan blok kontrol di beranda."
+        },
+        "showWelcomeBtn": {
+          "type": "boolean"
+        },
+        "showSeinBtn": {
+          "type": "boolean"
+        },
+        "showBrakeBtn": {
+          "type": "boolean"
+        },
+        "showComboBtn": {
+          "type": "boolean"
+        },
+        "customModes": {
+          "type": "array",
+          "description": "Daftar mode animasi baru buatan Admin."
+        },
+        "modeOverridesList": {
+          "type": "array",
+          "description": "Daftar penyesuaian mode bawaan oleh Admin."
+        },
+        "uiConfigJson": {
+          "type": "string",
+          "maxLength": 900000,
+          "description": "JSON konfigurasi tampilan penuh (latar, logo, ikon, susunan blok, gaya kartu, tipografi, custom CSS) yang tersinkron lewat OTA."
+        },
+        "updatedByUid": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "version",
+        "versionLabel",
+        "releaseNotes",
+        "appName",
+        "accentTheme",
+        "sectionOrder",
+        "showWelcomeBtn",
+        "showSeinBtn",
+        "showBrakeBtn",
+        "showComboBtn",
+        "customModes",
+        "modeOverridesList",
+        "updatedByUid",
+        "updatedAt"
+      ]
+    },
+    "AdminMember": {
+      "title": "AdminMember",
+      "description": "Daftar UID admin yang berwenang menerbitkan pembaruan jarak jauh.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/appReleases/{releaseId}": {
+      "schema": { "$ref": "#/entities/AppRelease" },
+      "description": "Menyimpan dokumen rilis aktif (latest) yang dibaca aplikasi Customer dan hanya boleh ditulis oleh Admin."
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminMember" },
+      "description": "Koleksi khusus verifikasi Admin."
+    }
+  }
+}

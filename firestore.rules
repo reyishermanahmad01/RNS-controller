@@ -1,0 +1,181 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Default-Deny Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Global Hardened Helpers
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isBootstrappedAdmin() {
+      return isVerifiedUser() && request.auth.token.email == 'reyishermanahmad@gmail.com';
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin() ||
+        (isVerifiedUser() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+    }
+
+    function isValidAccentTheme(theme) {
+      return theme is string && theme in ['cyan', 'magenta', 'crimson', 'amber', 'emerald'];
+    }
+
+    function isValidSectionOrder(order) {
+      return order is list
+        && order.size() >= 1
+        && order.size() <= 2
+        && order[0] is string
+        && order.hasOnly(['quick-controls', 'sliders']);
+    }
+
+    function isValidAppRelease(data) {
+      return data.keys().hasAll([
+          'version',
+          'versionLabel',
+          'releaseNotes',
+          'appName',
+          'accentTheme',
+          'sectionOrder',
+          'showWelcomeBtn',
+          'showSeinBtn',
+          'showBrakeBtn',
+          'showComboBtn',
+          'customModes',
+          'modeOverridesList',
+          'updatedByUid',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'version',
+          'versionLabel',
+          'releaseNotes',
+          'appName',
+          'accentTheme',
+          'sectionOrder',
+          'showWelcomeBtn',
+          'showSeinBtn',
+          'showBrakeBtn',
+          'showComboBtn',
+          'customModes',
+          'modeOverridesList',
+          'uiConfigJson',
+          'updatedByUid',
+          'updatedAt'
+        ])
+        && (!('uiConfigJson' in data) || (data.uiConfigJson is string && data.uiConfigJson.size() <= 900000))
+        && data.version is number
+        && data.version >= 1
+        && data.version <= 1000000
+        && data.versionLabel is string
+        && data.versionLabel.size() >= 1
+        && data.versionLabel.size() <= 128
+        && data.releaseNotes is string
+        && data.releaseNotes.size() <= 5000
+        && data.appName is string
+        && data.appName.size() >= 1
+        && data.appName.size() <= 500
+        && isValidAccentTheme(data.accentTheme)
+        && isValidSectionOrder(data.sectionOrder)
+        && data.showWelcomeBtn is bool
+        && data.showSeinBtn is bool
+        && data.showBrakeBtn is bool
+        && data.showComboBtn is bool
+        && data.customModes is list
+        && data.customModes.size() <= 500
+        && (data.customModes.size() == 0 || data.customModes[0] is map)
+        && data.modeOverridesList is list
+        && data.modeOverridesList.size() <= 500
+        && (data.modeOverridesList.size() == 0 || data.modeOverridesList[0] is map)
+        && data.updatedByUid is string
+        && data.updatedByUid.size() >= 1
+        && data.updatedByUid.size() <= 128
+        && data.updatedByUid == request.auth.uid
+        && data.updatedAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function isValidAdminMember(data, adminId) {
+      return data.keys().hasAll(['uid', 'createdAt'])
+        && data.keys().hasOnly(['uid', 'createdAt'])
+        && data.uid is string
+        && data.uid.size() >= 1
+        && data.uid.size() <= 128
+        && data.uid == adminId
+        && data.createdAt is timestamp
+        && data.createdAt == request.time;
+    }
+
+    // 3. Remote App Releases (Public single-doc read of 'latest' without PII; Admin-only write)
+    match /appReleases/{releaseId} {
+      allow get: if isValidId(releaseId) && releaseId == 'latest';
+      allow list: if false;
+      allow create: if isVerifiedUser()
+        && isValidId(releaseId)
+        && releaseId == 'latest'
+        && isValidAppRelease(incoming())
+        && isAdmin();
+      allow update: if isVerifiedUser()
+        && isValidId(releaseId)
+        && releaseId == 'latest'
+        && isValidAppRelease(incoming())
+        && incoming().version >= existing().version
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'version',
+          'versionLabel',
+          'releaseNotes',
+          'appName',
+          'accentTheme',
+          'sectionOrder',
+          'showWelcomeBtn',
+          'showSeinBtn',
+          'showBrakeBtn',
+          'showComboBtn',
+          'customModes',
+          'modeOverridesList',
+          'uiConfigJson',
+          'updatedByUid',
+          'updatedAt'
+        ])
+        && isAdmin();
+      allow delete: if false;
+    }
+
+    // 4. Admin Directory (Strict Admin-Only)
+    match /admins/{adminId} {
+      allow get: if isValidId(adminId) && isAdmin();
+      allow list: if false;
+      allow create: if isVerifiedUser()
+        && isValidId(adminId)
+        && isValidAdminMember(incoming(), adminId)
+        && isAdmin();
+      allow update: if false;
+      allow delete: if isValidId(adminId) && isAdmin();
+    }
+
+    // 5. Startup Connectivity Check Document
+    match /test/{docId} {
+      allow get: if isValidId(docId) && docId == 'connection';
+      allow list, write: if false;
+    }
+  }
+}

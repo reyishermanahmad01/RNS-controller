@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: "Outfit", "Plus Jakarta Sans", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  :root {
+    --rns-accent: #22d3ee;
+    --rns-card-bg: #111622;
+    --rns-card-radius: 1rem;
+    --rns-card-backdrop: none;
+    --rns-card-border-color: rgba(255, 255, 255, 0.08);
+    --rns-card-border-width: 1px;
+    --rns-text-color: #f1f5f9;
+    --rns-muted-color: #94a3b8;
+    --rns-header-bg: rgba(9, 12, 18, 0.85);
+    --rns-nav-bg: rgba(13, 18, 28, 0.95);
+    --rns-font-family: var(--font-sans);
+  }
+
+  html,
+  body {
+    background-color: #090c12;
+    color: var(--rns-text-color, #f1f5f9);
+    font-family: var(--rns-font-family, var(--font-sans));
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.rns-theme-root {
+  color: var(--rns-text-color, #f1f5f9);
+  font-family: var(--rns-font-family, var(--font-sans));
+}
+
+.rns-theme-root section.rounded-2xl,
+.rns-theme-root div.rounded-2xl {
+  border-radius: var(--rns-card-radius, 1rem);
+  backdrop-filter: var(--rns-card-backdrop, none);
+  border-color: var(--rns-card-border-color, rgba(255, 255, 255, 0.08));
+  border-width: var(--rns-card-border-width, 1px);
+}
+
+.rns-theme-root .bg-\[\#111622\] {
+  background-color: var(--rns-card-bg, #111622);
+}
+
+.rns-theme-root header {
+  background-color: var(--rns-header-bg, rgba(9, 12, 18, 0.85));
+}
+
+.rns-theme-root nav[aria-label="Navigasi bawah"] {
+  background-color: var(--rns-nav-bg, rgba(13, 18, 28, 0.95));
+}
+
+.rns-theme-root .text-slate-100 {
+  color: var(--rns-text-color, #f1f5f9);
+}
+
+.rns-theme-root .text-slate-400 {
+  color: var(--rns-muted-color, #94a3b8);
+}
+
+/* Custom clean automotive range slider */
+input[type="range"].rns-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"].rns-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+}
+
+input[type="range"].rns-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #f8fafc;
+  border: 2px solid #22d3ee;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+  margin-top: -7px;
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), border-color 150ms ease;
+}
+
+input[type="range"].rns-slider:hover::-webkit-slider-thumb,
+input[type="range"].rns-slider:focus-visible::-webkit-slider-thumb {
+  transform: scale(1.1);
+}
+
+input[type="range"].rns-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+}
+
+input[type="range"].rns-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #f8fafc;
+  border: 2px solid #22d3ee;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
+/* Hide scrollbars for clean horizontal mode rails */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

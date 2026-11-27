@@ -1,0 +1,6 @@
+{
+  "name": "RNS RGB Controller",
+  "description": "Kontroler lampu stoplamp RGB motor berbasis Wemos D1 Mini ESP8266 dengan simulator LED real-time, 24 mode animasi, serta pengaturan Welcome, Sein, Rem, dan konfigurasi panel LED.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": []
+}

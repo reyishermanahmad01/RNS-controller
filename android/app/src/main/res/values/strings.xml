@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RNS</string>
+    <string name="title_activity_main">RNS</string>
+    <string name="package_name">com.rns.ledcontroller</string>
+    <string name="custom_url_scheme">com.rns.ledcontroller</string>
+</resources>
